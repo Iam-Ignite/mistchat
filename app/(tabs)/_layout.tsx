@@ -44,11 +44,19 @@ export default function _layout() {
       <Tabs.Screen
         name="questions"
         options={{
+          title: 'Questions',
           tabBarLabel: "Questions",
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="question-answer" color={color} size={size} />
           ),
-          headerShown: false, // Hides the header for this tab
+          headerShown: !false, // Hides the header for this tab
+          headerStyle: {
+            backgroundColor: '#4F54C1',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
         }}
       />
     </Tabs>

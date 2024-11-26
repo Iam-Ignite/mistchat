@@ -1,6 +1,6 @@
 import UsernameModal from "@/components/UsernameModal";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { updateDoc, doc, setDoc } from "firebase/firestore"; // Firestore imports
 import {
   View,
@@ -33,7 +33,10 @@ const AnonymousQuestionScreen = () => {
     { id: "q13", text: "What’s a challenge you’ve recently overcome?" },
     { id: "q14", text: "What’s your go-to comfort food?" },
     { id: "q15", text: "What’s a hobby you’d like to pick up?" },
-    { id: "q16", text: "If you could live in any time period, which one would it be?" },
+    {
+      id: "q16",
+      text: "If you could live in any time period, which one would it be?",
+    },
     { id: "q17", text: "What’s your favorite way to spend a weekend?" },
     { id: "q18", text: "What’s your dream job?" },
     { id: "q19", text: "What’s a book, movie, or series that inspired you?" },
@@ -44,7 +47,6 @@ const AnonymousQuestionScreen = () => {
     { id: "q24", text: "What’s a life lesson you’ve learned recently?" },
     { id: "q25", text: "What’s a song that always lifts your mood?" },
   ]);
-  
 
   const [currentQuestion, setCurrentQuestion] = useState({
     id: "default",
@@ -55,6 +57,8 @@ const AnonymousQuestionScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
+
+  const textInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -77,14 +81,14 @@ const AnonymousQuestionScreen = () => {
     initializeUser();
   }, [username]);
 
-  const handleUsernameSubmit = (userData:any) => {
-    if (typeof userData === 'string') {
+  const handleUsernameSubmit = (userData: any) => {
+    if (typeof userData === "string") {
       setUsername(userData); // When directly passing a string
     } else if (userData?.username) {
       setUsername(userData.username); // Extract `username` if `userData` is an object
     }
   };
-  
+
   const generateRandomQuestion = async () => {
     const randomIndex = Math.floor(Math.random() * randomQuestions.length);
     const randomQuestion = randomQuestions[randomIndex];
@@ -106,16 +110,16 @@ const AnonymousQuestionScreen = () => {
     }
   };
 
-//   const clearAsyncStorage = async () => {
-//   try {
-//     await AsyncStorage.clear();
-//     console.log('AsyncStorage successfully cleared!');
-//   } catch (error) {
-//     console.error('Failed to clear AsyncStorage:', error);
-//   }
-// };
+  //   const clearAsyncStorage = async () => {
+  //   try {
+  //     await AsyncStorage.clear();
+  //     console.log('AsyncStorage successfully cleared!');
+  //   } catch (error) {
+  //     console.error('Failed to clear AsyncStorage:', error);
+  //   }
+  // };
 
-// clearAsyncStorage();
+  // clearAsyncStorage();
 
   const handleSave = async () => {
     if (inputQuestion.trim() !== "") {
@@ -157,31 +161,37 @@ const AnonymousQuestionScreen = () => {
     }
   };
 
-  const chatLink = `https://mistchat.netlify.app/messages?username=${username}/?id=${userId}`;
- 
+  useEffect(() => {
+    if (isEditing && textInputRef.current) {
+      // Focus and highlight the text
+      textInputRef.current.focus();
+      textInputRef.current.setSelection(0, inputQuestion.length);
+    }
+  }, [isEditing]);
 
-const shareChatLink = async () => {
-  try {
-    await Share.share({
-      message: `${inputQuestion} - ${chatLink} `,
-    });
-  } catch (error) {
-    console.error("Error sharing chat link:", error);
-  }
-};
-  
+  const chatLink = `https://mistchat.netlify.app/messages?username=${username}/?id=${userId}`;
+
+  const shareChatLink = async () => {
+    try {
+      await Share.share({
+        message: `${inputQuestion} - ${chatLink} `,
+      });
+    } catch (error) {
+      console.error("Error sharing chat link:", error);
+    }
+  };
+
   return (
     <SafeAreaView
       className="flex-1"
       style={{ flex: 1, backgroundColor: "#e6e6fa" }}
     >
       <View
-        // colors={["#e6e6fa", "#4e54c86c"]}
         style={{
           flex: 1,
           justifyContent: "flex-end",
           alignItems: "center",
-          backgroundColor:'#e6e6fa'
+          backgroundColor: "#e6e6fa",
         }}
       >
         <View style={{ flex: 1, padding: 10 }}>
@@ -197,118 +207,140 @@ const shareChatLink = async () => {
             </Text>
           </View>
           <View
-              // colors={["#0077CC", "#4e54c8"]}
-              style={{
-                // margin:10,
-                width:370,
-                borderRadius: 15,
-                height: 180,
-                marginBottom: 24,
-                backgroundColor:"#4e54c8"
-              }}
-            >
-          <View
             style={{
-              padding: 24,
+              width: 370,
               borderRadius: 15,
               height: 180,
               marginBottom: 24,
+              backgroundColor: "#4e54c8",
             }}
-            className="w-full"
           >
-            <ImageBackground
-              source={require("../../assets/images/questions.png")}
-              resizeMode="contain"
-              style={{ height: 150, width: "100%", justifyContent: "center" }}
+            <View
+              style={{
+                padding: 24,
+                borderRadius: 15,
+                height: 180,
+                marginBottom: 24,
+              }}
+              className="w-full"
             >
-              {isEditing ? (
-                <TextInput
-                  className="bg-transparent text-white p-2 rounded-lg text-center"
-                  value={inputQuestion}
-                  style={{ fontSize: 20 }}
-                  onChangeText={setInputQuestion}
-                />
-              ) : (
-                <Text
-                  style={{ color: "#FFFFFF", fontSize: 24 }}
-                  className="font-semibold text-center mb-2"
-                >
-                  {currentQuestion.text}
-                </Text>
-              )}
-
-              <View className="flex-row justify-center mt-2">
-                <TouchableOpacity
-                  onPress={generateRandomQuestion}
-                  className="flex-row items-center  mx-2 rounded-lg px-4 py-2"
-                >
-                  <Ionicons
-                    name="shuffle"
-                    size={16}
-                    color="#FFFFFF"
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text style={{ color: "#FFFFFF" }} className="text-sm ">
-                    Random
-                  </Text>
-                </TouchableOpacity>
+              <ImageBackground
+                source={require("../../assets/images/questions.png")}
+                resizeMode="contain"
+                style={{ height: 150, width: "100%", justifyContent: "center" }}
+              >
                 {isEditing ? (
-                  <TouchableOpacity
-                    onPress={handleSave}
-                    className="flex-row  items-center mx-2 rounded-lg px-4 py-2"
-                  >
-                    <Ionicons
-                      name="save"
-                      size={16}
-                      color="#FFFFFF"
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text style={{ color: "#FFFFFF" }} className="text-sm">
-                      Save
-                    </Text>
-                  </TouchableOpacity>
+                  <TextInput
+                    ref={textInputRef}
+                    className="bg-transparent text-white p-2 rounded-lg text-center"
+                    value={inputQuestion}
+                    style={{ fontSize: 20 }}
+                    onChangeText={setInputQuestion}
+                  />
                 ) : (
+                  <Text
+                    style={{ color: "#FFFFFF", fontSize: 24 }}
+                    className="font-semibold text-center mb-2"
+                  >
+                    {currentQuestion.text}
+                  </Text>
+                )}
+
+                <View className="flex-row justify-center mt-2">
                   <TouchableOpacity
-                    onPress={() => setIsEditing(true)}
-                    className="flex-row items-center mx-2  rounded-lg px-4 py-2"
+                    onPress={generateRandomQuestion}
+                    className="flex-row items-center mx-2 rounded-lg px-4"
+                    style={{
+                      minHeight: 48,
+                      paddingVertical: 6,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
                     <Ionicons
-                      name="create"
+                      name="shuffle"
                       size={16}
                       color="#FFFFFF"
                       style={{ marginRight: 8 }}
                     />
                     <Text style={{ color: "#FFFFFF" }} className="text-sm">
-                      Edit Question
+                      Random
                     </Text>
                   </TouchableOpacity>
-                )}
-              </View>
-            </ImageBackground>
+                  {isEditing ? (
+                    <TouchableOpacity
+                      onPress={handleSave}
+                      className="flex-row items-center mx-2 rounded-lg px-4"
+                      style={{
+                        minHeight: 48,
+                        paddingVertical: 6,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Ionicons
+                        name="save"
+                        size={16}
+                        color="#FFFFFF"
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text style={{ color: "#FFFFFF" }} className="text-sm">
+                        Save
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => setIsEditing(true)}
+                      className="flex-row items-center mx-2 rounded-lg px-4"
+                      style={{
+                        minHeight: 48,
+                        paddingVertical: 6,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Ionicons
+                        name="create"
+                        size={16}
+                        color="#FFFFFF"
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text style={{ color: "#FFFFFF" }} className="text-sm">
+                        Edit Question
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </ImageBackground>
+            </View>
           </View>
-              </View>
 
           {/* Copy Link Section */}
-          <View className="bg-white p-4  rounded-2xl mb-6">
+          <View className="bg-white p-4 rounded-2xl mb-6">
             <Text className="text-[#4e54c8] text-lg font-semibold text-center mb-2">
               Step 1: Copy the chat link below
             </Text>
             <View className="bg-gray-100 rounded-lg p-4 mb-4">
               <Text className="text-gray-500 text-center">{chatLink}</Text>
             </View>
-      
-              <TouchableOpacity
+
+            <TouchableOpacity
               onPress={() => shareChatLink()}
-                // Static button color
-                className=" bg-[#4e54c8] rounded-lg w-full p-3"
+              className="bg-[#4e54c8] rounded-lg w-full"
+              style={{
+                minHeight: 56, // Set a larger minimum height to meet the touch target guideline
+                justifyContent: "center",
+                alignItems: "center", // Center the text horizontally
+                paddingVertical: 12, // Adjust padding for better spacing
+              }}
+            >
+              <Text
+                style={{ color: "#FFFFFF" }}
+                className="text-center text-lg font-semibold" // Use a slightly larger font size for better readability
               >
-                <Text
-                  style={{ color: "#FFFFFF" }}
-                  className="text-center text-[#4e54c8] font-semibold"
-                >
-                  Share
-                </Text>
-              </TouchableOpacity>
+                Share
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <UsernameModal

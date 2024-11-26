@@ -16,7 +16,6 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false); // To handle the loading state
 
-
   const handleSave = async () => {
     if (username.trim() !== "") {
       try {
@@ -48,12 +47,11 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
       }
     }
   };
-  
 
   return (
     <Modal transparent={true} visible={isVisible} animationType="slide">
       <View
-        className="bg-[#4e54c8]"
+        className="bg-[#4F54C1]"
         style={{
           flex: 1,
           justifyContent: "flex-end",
@@ -72,11 +70,21 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
             </Text>
           </View>
           <View>
-            <Text className="font-medium text-center text-2xl text-white">
+            <Text style={{
+            
+                fontSize:25
+              }} className="font-bold text-center text-2xl text-white">
               Write your nickname
             </Text>
-            <Text className="font-medium text-center px-10 text-base text-white">
-            Create an anonymous chat room and receive messages from admirers
+            <Text
+              className="font-normal mt-2 text-center  px-10"
+              style={{
+                color: "#F0F4FF", // Off-white color for better contrast
+                backgroundColor: "#4F54C1", // Existing background color
+                fontSize:18
+              }}
+            >
+              Create an anonymous chat room and receive messages from admirers
             </Text>
           </View>
         </View>
@@ -100,7 +108,7 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
               // margin:10,
               marginVertical: 20,
               borderRadius: 50,
-              backgroundColor:"#f4f4f4"
+              backgroundColor: "#f4f4f4",
             }}
           >
             <TextInput
@@ -124,10 +132,8 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
                 shadowRadius: 4.65,
                 // Shadow for Android
                 elevation: 2,
-                
               }}
               placeholderTextColor="gray"
-
             />
           </View>
           <View
@@ -150,7 +156,7 @@ const UsernameModal = ({ isVisible, onClose, onSubmit }: any) => {
                 width: "100%",
                 // margin:10,
                 borderRadius: 50,
-                backgroundColor:"#0077CC"
+                backgroundColor: "#0077CC",
               }}
             >
               <TouchableOpacity
